@@ -111,6 +111,7 @@ const Login = () => {
             <button
               className="btn btn-lg btn-success"
               onClick={handleClickSignIn}
+              disabled={showAlertMessage.visibility}
             >
               Ingresar
             </button>

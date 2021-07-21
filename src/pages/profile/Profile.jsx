@@ -3,9 +3,11 @@ import md5 from 'md5';
 import ApplicationContext from '../../context/ApplicationContext';
 import { GetUserById, UpdateUser } from '../../services/AuthenticatedService';
 import Modal from '../../components/Modal/Modal';
+import { validateEmail, validateText } from '../../utils/RegexValidations';
+import AlertMessage from '../../components/AlertMessage/AlertMessage';
 
 const Profile = () => {
-  const { modalIsOpen, refreshModalIsOpen } = useContext(ApplicationContext);
+  const { modalIsOpen, refreshModalIsOpen, refreshShowAlertMessage, showAlertMessage} = useContext(ApplicationContext);
   const [userData, setUserData] = useState(undefined);
   const loadDataCurrentUser = async () => {
     const currentUserId = localStorage.getItem('USER_ID');
@@ -14,6 +16,32 @@ const Profile = () => {
   };
 
   const handleChangeInput = (e) => {
+
+    const nameInput = e.target.name;
+    const valueInput = e.target.value;
+
+    const isValid =
+      nameInput === 'email'
+        ? validateEmail(valueInput)
+        : validateText(valueInput);
+
+    const messageValidation =
+      nameInput === 'email'
+        ? 'Debe ingresar un correo válido.'
+        : 'Debe ingresar mas de 6 caracteres.';
+
+    if (! isValid && valueInput) {
+      refreshShowAlertMessage({
+        visibility: true,
+        message: messageValidation,
+      });
+    } else {
+      refreshShowAlertMessage({
+        visibility: false,
+        message: '',
+      });
+    }
+
     if (e.target.name === 'email') {
       setUserData({
         ...userData,
@@ -42,6 +70,7 @@ const Profile = () => {
   };
 
   useEffect(() => {
+    refreshShowAlertMessage({ visibility: false });
     loadDataCurrentUser();
   }, []);
 
@@ -128,6 +157,23 @@ const Profile = () => {
                       />
                     </div>
                   </div>
+                  <div className="row mb-2">
+                    <div className="col-sm-3">
+                      <h6 className="mb-0">Contraseña</h6>
+                    </div>
+                    <div className="col-sm-9 text-secondary">
+                      <input
+                        type="password"
+                        name="password"
+                        className="form-control"
+                        value={userData.password}
+                        onChange={handleChangeInput}
+                      />
+                    </div>
+                  </div>
+                  {showAlertMessage.visibility ? (
+                    <AlertMessage message={showAlertMessage.message} />
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -138,6 +184,7 @@ const Profile = () => {
               <button
                 className="btn btn-lg btn-success float-end"
                 onClick={handleSaveUserData}
+                disabled={showAlertMessage.visibility}
               >
                 Guardar
               </button>

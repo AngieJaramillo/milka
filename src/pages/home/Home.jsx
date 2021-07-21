@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getCharactersRickAndMorty } from '../../services/RickAndMortyService';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import HomeLoader from '../../components/Loader/HomeLoader';
@@ -11,22 +11,35 @@ const Home = () => {
     next: null,
   });
 
+  const [txtBuscar, setTxtBuscar] = useState('');
+
   const getCharacters = async (url) => {
     setLoadCharacters({
       loading: true,
     });
     const { prev, characters, next } = await getCharactersRickAndMorty(url);
-    setLoadCharacters({
-      loading: false,
-      prev: prev,
-      characters: characters,
-      next: next,
-    });
+    if (txtBuscar !== '') {
+      setLoadCharacters({
+        loading: false,
+        prev: prev,
+        characters: characters.filter((item) => {
+          return item.name.toLowerCase().includes(txtBuscar.toLowerCase());
+        }),
+        next: next,
+      });
+    } else {
+      setLoadCharacters({
+        loading: false,
+        prev: prev,
+        characters: characters,
+        next: next,
+      });
+    }
   };
 
   useEffect(() => {
     getCharacters();
-  }, []);
+  }, [txtBuscar]);
 
   return (
     <>
@@ -58,6 +71,17 @@ const Home = () => {
               </button>
             </div>
           </div>
+          <div className="form-group">
+            <label htmlFor="filterText"><strong>Filtro</strong></label>
+            <input
+              type="text"
+              className="form-control"
+              name="filterText"
+              onChange={(e) => setTxtBuscar(e.target.value)}
+              value={txtBuscar}
+            />
+          </div>
+          <br />
           <div className="row row-cols-md-2">
             {loadCharacters.characters.map((character) => {
               return (

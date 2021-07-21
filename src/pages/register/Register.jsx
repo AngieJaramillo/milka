@@ -82,6 +82,7 @@ const Register = () => {
       nameInput === 'email'
         ? 'Debe ingresar un correo válido.'
         : 'Debe ingresar mas de 6 caracteres.';
+
     if (!isValid && valueInput) {
       refreshShowAlertMessage({
         visibility: true,
@@ -162,6 +163,7 @@ const Register = () => {
               <button
                 className="btn btn-lg btn-success"
                 onClick={handleClickSignUp}
+                disabled={showAlertMessage.visibility}
               >
                 Registar
               </button>
